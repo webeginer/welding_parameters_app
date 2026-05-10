@@ -5,19 +5,22 @@ import os
 
 
 # ---------- НАСТРОЙКА АДРЕСА БЭКЕНДА ----------
-# Единый адрес для всех запросов к бэкенду
-if os.getenv("RENDER"):
-    # На Render — используем публичный адрес и явный путь /calculate
-    BASE_API_URL = os.getenv("API_URL", "https://welding-backend-ap4o.onrender.com")
-else:
-    # Локально — localhost:8000
-    BASE_API_URL = "http://localhost:8000"
-
 # Полный адрес для эндпоинта расчёта
-API_URL = f"{BASE_API_URL}/calculate"
+if os.getenv("RENDER"):
+    # На Render — полный путь /api/calculate
+    API_URL = os.getenv("API_URL", "https://welding-backend-ap4o.onrender.com/api/calculate")
+else:
+    # Локально — localhost:8000/api/calculate
+    API_URL = "http://localhost:8000/api/calculate"
 
-# Отладочный вывод (временно)
+# Отладочный вывод (временно, можно потом удалить)
 st.sidebar.caption(f"🌐 Отправляю запрос на: {API_URL}")
+
+st.set_page_config(
+    page_title="Калькулятор сварки",
+    page_icon="📋",
+    layout="wide"
+)
 
 st.markdown("""
 <style>
@@ -358,8 +361,7 @@ with col_right:
 
         with st.spinner("..."):
             try:
-                response = requests.post(
-                    f"{API_URL}/calculate", json=payload, timeout=10)
+                response = requests.post(API_URL, json=payload, timeout=10)
                 if response.status_code == 200:
                     result = response.json()
                     params = result.get("parameters", {})
