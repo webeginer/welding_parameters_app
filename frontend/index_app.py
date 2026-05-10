@@ -4,8 +4,18 @@ import os
 import requests
 
 # ---------- НАСТРОЙКА АДРЕСА БЭКЕНДА ----------
-# Берём адрес из переменной окружения (Render) или используем localhost для разработки
-API_URL = os.getenv("API_URL", "http://localhost:8000")
+# По умолчанию для локальной разработки
+API_URL = "http://localhost:8000"
+
+# Если запущено на Render (есть переменная окружения RENDER) — берём API_URL из окружения
+if os.getenv("RENDER"):
+    API_URL = os.getenv("API_URL", "https://welding-backend-ap4o.onrender.com")
+# Если есть локальный secrets.toml — используем его для переопределения (удобно для отладки)
+elif os.path.exists(".streamlit/secrets.toml"):
+    try:
+        API_URL = st.secrets.get("API_URL", API_URL)
+    except:
+        pass
 
 # Для отладки (показывает текущий адрес API в сайдбаре)
 st.sidebar.caption(f"🌐 API: {API_URL}")
