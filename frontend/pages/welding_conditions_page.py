@@ -6,7 +6,7 @@ import os
 # ---------- НАСТРОЙКА АДРЕСА БЭКЕНДА ----------
 # Для Render используем переменную окружения, для локальной разработки — localhost
 if os.getenv("RENDER"):
-    API_URL = os.getenv("API_URL", "https://welding-backend-ap4o.onrender.com/api")
+    API_URL = os.getenv("API_URL", "https://welding-backend-ap4o.onrender.com")
 else:
     API_URL = "http://localhost:8000/api"
 
