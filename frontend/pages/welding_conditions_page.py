@@ -8,7 +8,7 @@ import os
 # Полный адрес для эндпоинта расчёта
 if os.getenv("RENDER"):
     # На Render — полный путь /api/calculate
-    API_URL = os.getenv("API_URL", "https://welding-backend-ap4o.onrender.com/api/calculate")
+    API_URL = "https://welding-backend-ap4o.onrender.com/api/calculate"
 else:
     # Локально — localhost:8000/api/calculate
     API_URL = "http://localhost:8000/api/calculate"
