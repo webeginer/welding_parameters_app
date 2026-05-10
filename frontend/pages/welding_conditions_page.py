@@ -3,18 +3,21 @@ import streamlit as st
 import requests
 import os
 
-# ---------- НАСТРОЙКА АДРЕСА БЭКЕНДА ----------
-# Для Render используем переменную окружения, для локальной разработки — localhost
-if os.getenv("RENDER"):
-    API_URL = os.getenv("API_URL", "https://welding-backend-ap4o.onrender.com/api")
-else:
-    API_URL = "http://localhost:8000/api"
 
-st.set_page_config(
-    page_title="Калькулятор сварки",
-    page_icon="📋",
-    layout="wide"
-)
+# ---------- НАСТРОЙКА АДРЕСА БЭКЕНДА ----------
+# Единый адрес для всех запросов к бэкенду
+if os.getenv("RENDER"):
+    # На Render — используем публичный адрес и явный путь /calculate
+    BASE_API_URL = os.getenv("API_URL", "https://welding-backend-ap4o.onrender.com")
+else:
+    # Локально — localhost:8000
+    BASE_API_URL = "http://localhost:8000"
+
+# Полный адрес для эндпоинта расчёта
+API_URL = f"{BASE_API_URL}/calculate"
+
+# Отладочный вывод (временно)
+st.sidebar.caption(f"🌐 Отправляю запрос на: {API_URL}")
 
 st.markdown("""
 <style>
