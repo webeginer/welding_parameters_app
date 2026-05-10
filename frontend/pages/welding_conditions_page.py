@@ -1,6 +1,14 @@
 # frontend/pages/welding_conditions_page.py
 import streamlit as st
 import requests
+import os
+
+# ---------- НАСТРОЙКА АДРЕСА БЭКЕНДА ----------
+# Для Render используем переменную окружения, для локальной разработки — localhost
+if os.getenv("RENDER"):
+    API_URL = os.getenv("API_URL", "https://welding-backend-ap4o.onrender.com/api")
+else:
+    API_URL = "http://localhost:8000/api"
 
 st.set_page_config(
     page_title="Калькулятор сварки",
@@ -105,8 +113,6 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-API_URL = "http://localhost:8000/api"
-
 
 def format_number(value):
     if isinstance(value, (int, float)):
@@ -149,21 +155,21 @@ with col_left:
         st.markdown('<div class="field-label">метод сварки</div>',
                     unsafe_allow_html=True)
         method = st.selectbox(
-            "",
+            "Метод сварки",
             options=["Ручная (MMA)", "Аргонодуговая (TIG)",
                      "Полуавтоматическая (MIG/MAG)"],
             index=0,
-            label_visibility="collapsed"
+            label_visibility="hidden"
         )
     with col_m2:
         st.markdown('<div class="field-label">металл</div>',
                     unsafe_allow_html=True)
         material = st.selectbox(
-            "",
+            "Тип металла",
             options=["Углеродистая сталь",
                      "Алюминий и его сплавы", "Нержавеющая сталь"],
             index=0,
-            label_visibility="collapsed"
+            label_visibility="hidden"
         )
 
     method_code = {"Ручная (MMA)": "MMA", "Аргонодуговая (TIG)": "TIG",
@@ -189,8 +195,14 @@ with col_left:
 
         st.markdown('<div class="field-label">Сварка по</div>',
                     unsafe_allow_html=True)
-        st.selectbox("", options=gost_options, format_func=lambda x: gost_labels[gost_options.index(
-            x)], disabled=gost_disabled, key="gost_main", label_visibility="collapsed")
+        st.selectbox(
+            "ГОСТ", 
+            options=gost_options, 
+            format_func=lambda x: gost_labels[gost_options.index(x)], 
+            disabled=gost_disabled, 
+            key="gost_main", 
+            label_visibility="hidden"
+        )
 
     JOINT_GROUPS = {
         "Стыковое": ["C1", "C2", "C3", "C4", "C5"],
@@ -201,27 +213,35 @@ with col_left:
     with col_g2:
         st.markdown('<div class="field-label">Соединение</div>',
                     unsafe_allow_html=True)
-        joint_group = st.selectbox("", options=list(
-            JOINT_GROUPS.keys()), index=0, label_visibility="collapsed")
+        joint_group = st.selectbox(
+            "Тип соединения", 
+            options=list(JOINT_GROUPS.keys()), 
+            index=0, 
+            label_visibility="hidden"
+        )
     with col_g3:
         st.markdown('<div class="field-label">Тип</div>',
                     unsafe_allow_html=True)
         joint_type = st.selectbox(
-            "", options=JOINT_GROUPS[joint_group], index=0, label_visibility="collapsed")
+            "Тип соединения детали", 
+            options=JOINT_GROUPS[joint_group], 
+            index=0, 
+            label_visibility="hidden"
+        )
     with col_g4:
         # Катет только для угловых и тавровых
         if joint_group in ["Угловое", "Тавровое"]:
             st.markdown('<div class="field-label">📐</div>',
                         unsafe_allow_html=True)
             leg = st.number_input(
-                "",
+                "Катет шва (мм)",
                 min_value=1.0,
                 max_value=100.0,
                 value=st.session_state.leg_value,
                 step=0.5,
                 format="%.1f",
                 key="leg",
-                label_visibility="collapsed"
+                label_visibility="hidden"
             )
             st.session_state.leg_value = leg
         else:
@@ -239,8 +259,16 @@ with col_left:
     with col_t:
         st.markdown('<div class="field-label">Толщина, мм</div>',
                     unsafe_allow_html=True)
-        thickness = st.number_input("", min_value=0.5, max_value=100.0, value=6.0,
-                                    step=0.5, format="%.1f", key="thickness", label_visibility="collapsed")
+        thickness = st.number_input(
+            "Толщина металла (мм)", 
+            min_value=0.5, 
+            max_value=100.0, 
+            value=6.0,
+            step=0.5, 
+            format="%.1f", 
+            key="thickness", 
+            label_visibility="hidden"
+        )
         # Синхронизация катета с толщиной
         if leg is not None:
             if st.session_state.leg_value > thickness:
@@ -249,8 +277,15 @@ with col_left:
     with col_l:
         st.markdown('<div class="field-label">Длина, мм</div>',
                     unsafe_allow_html=True)
-        length = st.number_input("", min_value=10, max_value=10000,
-                                 value=500, step=50, key="length", label_visibility="collapsed")
+        length = st.number_input(
+            "Длина детали (мм)", 
+            min_value=10, 
+            max_value=10000,
+            value=500, 
+            step=50, 
+            key="length", 
+            label_visibility="hidden"
+        )
 
     st.markdown('<div style="height: 8px;"></div>', unsafe_allow_html=True)
 
@@ -261,8 +296,12 @@ with col_left:
     # Положение шва
     st.markdown('<div class="field-label">Положение шва</div>',
                 unsafe_allow_html=True)
-    position = st.selectbox("", options=[
-                            "Нижнее", "Вертикальное", "Потолочное"], index=0, label_visibility="collapsed")
+    position = st.selectbox(
+        "Положение сварного шва", 
+        options=["Нижнее", "Вертикальное", "Потолочное"], 
+        index=0, 
+        label_visibility="hidden"
+    )
     position_code = {"Нижнее": "lower", "Вертикальное": "vertical",
                      "Потолочное": "ceiling"}[position]
 
@@ -274,10 +313,18 @@ with col_left:
         if use_gas:
             if method_code == "TIG":
                 gas_mixture = st.selectbox(
-                    "Смесь", options=["75% Ar + 25% He", "90% Ar + 10% H₂"], index=0)
+                    "Газовая смесь TIG", 
+                    options=["75% Ar + 25% He", "90% Ar + 10% H₂"], 
+                    index=0,
+                    label_visibility="hidden"
+                )
             else:
-                gas_mixture = st.selectbox("Смесь", options=[
-                                           "80% Ar + 20% CO₂", "82% Ar + 18% CO₂", "90% Ar + 10% CO₂"], index=0)
+                gas_mixture = st.selectbox(
+                    "Газовая смесь MIG/MAG", 
+                    options=["80% Ar + 20% CO₂", "82% Ar + 18% CO₂", "90% Ar + 10% CO₂"], 
+                    index=0,
+                    label_visibility="hidden"
+                )
 
     # Кнопка расчёта
     calculate = st.button("Рассчитать", type="primary",
@@ -392,10 +439,10 @@ with col_right:
                                       f"{format_number(round(A, 2))}" if A else "—")
 
                 else:
-                    st.error(f"Ошибка: {response.status_code}")
+                    st.error(f"Ошибка: {response.status_code} - {response.text}")
 
             except requests.exceptions.ConnectionError:
-                st.error("❌ Бэкенд не запущен на порту 8000")
+                st.error(f"❌ Бэкенд не отвечает по адресу: {API_URL}")
             except Exception as e:
                 st.error(f"⚠️ {str(e)}")
     else:
