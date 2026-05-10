@@ -1,5 +1,19 @@
 # frontend/index_app.py
 import streamlit as st
+import os
+import requests  # добавлено для работы с API
+
+# ---------- НАСТРОЙКА АДРЕСА БЭКЕНДА ----------
+# Определяем, где запущено приложение
+if os.getenv("STREAMLIT_SHARING") == "true" or os.getenv("STREAMLIT_CLOUD") == "true":
+    # Режим Streamlit Cloud
+    API_URL = os.getenv("API_URL", "https://welding-backend-ap4o.onrender.com")
+else:
+    # Локальный режим
+    API_URL = "http://localhost:8000"
+
+# Для отладки (можно потом удалить)
+st.sidebar.caption(f"🌐 API: {API_URL}")
 
 st.set_page_config(
     page_title="Калькулятор сварщика",
